@@ -1,98 +1,130 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+const initialCards = [
+  { id: 1, question: "What is the capital of France?", answer: "Paris" },
+  { id: 2, question: "What is 12 x 12?", answer: "144" },
+  {
+    id: 3,
+    question: 'Who wrote "Romeo and Juliet"?',
+    answer: "William Shakespeare",
+  },
+  {
+    id: 4,
+    question: "What is the largest planet in our solar system?",
+    answer: "Jupiter",
+  },
+];
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
+export default function Index() {
+  const [cards] = useState(initialCards);
+  const [index, setIndex] = useState(0);
+  const [showAnswer, setShowAnswer] = useState(false);
+
+  const currentCard = cards[index];
+
+  function goNext() {
+    setShowAnswer(false);
+    setIndex((prev) => (prev + 1) % cards.length);
   }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
+
+  function goPrevious() {
+    setShowAnswer(false);
+    setIndex((prev) => (prev - 1 + cards.length) % cards.length);
   }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+    <View style={styles.container}>
+      <Text style={styles.counter}>
+        {index + 1} / {cards.length}
+      </Text>
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+      <View style={styles.card}>
+        <Text style={styles.cardText}>
+          {showAnswer ? currentCard.answer : currentCard.question}
+        </Text>
+      </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+      <Pressable
+        style={styles.showButton}
+        onPress={() => setShowAnswer(!showAnswer)}
+      >
+        <Text style={styles.showButtonText}>
+          {showAnswer ? "Show Question" : "Show Answer"}
+        </Text>
+      </Pressable>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+      <View style={styles.navRow}>
+        <Pressable style={styles.navButton} onPress={goPrevious}>
+          <Text style={styles.navButtonText}>Previous</Text>
+        </Pressable>
+        <Pressable style={styles.navButton} onPress={goNext}>
+          <Text style={styles.navButtonText}>Next</Text>
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+    backgroundColor: "#f5f5f5",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+  counter: {
+    fontSize: 16,
+    color: "#888",
+    marginBottom: 16,
   },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+  card: {
+    width: "100%",
+    minHeight: 200,
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 24,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
-  title: {
-    textAlign: 'center',
+  cardText: {
+    fontSize: 20,
+    textAlign: "center",
+    color: "#222",
   },
-  code: {
-    textTransform: 'uppercase',
+  showButton: {
+    marginTop: 20,
+    backgroundColor: "#4a6cf7",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 10,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+  showButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  navRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    marginTop: 30,
+  },
+  navButton: {
+    backgroundColor: "#e0e0e0",
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+  },
+  navButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#333",
   },
 });
