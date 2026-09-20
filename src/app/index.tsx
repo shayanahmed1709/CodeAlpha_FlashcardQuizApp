@@ -1,7 +1,11 @@
-import { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
-const initialCards = [
+const STORAGE_KEY = "flashcards";
+
+const defaultCards = [
   { id: 1, question: "What is the capital of France?", answer: "Paris" },
   { id: 2, question: "What is 12 x 12?", answer: "144" },
   {
@@ -17,11 +21,31 @@ const initialCards = [
 ];
 
 export default function Index() {
-  const [cards] = useState(initialCards);
+  const [cards, setCards] = useState(defaultCards);
   const [index, setIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
-  const currentCard = cards[index];
+  useFocusEffect(
+    useCallback(() => {
+      AsyncStorage.getItem(STORAGE_KEY).then((saved) => {
+        if (saved) {
+          setCards(JSON.parse(saved));
+        }
+        setLoaded(true);
+      });
+    }, []),
+  );
+
+  if (loaded && cards.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.cardText}>No cards yet. Add one in Manage!</Text>
+      </View>
+    );
+  }
+
+  const currentCard = cards[index % cards.length];
 
   function goNext() {
     setShowAnswer(false);
@@ -36,7 +60,7 @@ export default function Index() {
   return (
     <View style={styles.container}>
       <Text style={styles.counter}>
-        {index + 1} / {cards.length}
+        {(index % cards.length) + 1} / {cards.length}
       </Text>
 
       <View style={styles.card}>
