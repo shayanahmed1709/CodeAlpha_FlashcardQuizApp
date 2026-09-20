@@ -37,8 +37,6 @@ bash
 Scan the QR code with the Expo Go app (Android/iOS) to run it on your phone, or press a for an Android emulator / i for an iOS simulator.
 📸 Screenshots
 
-(Add screenshots of the Home screen and Manage screen here)
-
 🎓 About
 
 This project was built as part of the App Development track of the CodeAlpha internship program.
